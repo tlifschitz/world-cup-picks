@@ -1,6 +1,6 @@
 {
-  "emp_total": 10,
-  "mp_total": 6,
+  "emp_total": 15,
+  "mp_total": 9,
   "revealed": [
     537327,
     537328
@@ -17,7 +17,7 @@
   },
   "statuses": {
     "537327": "FINISHED",
-    "537328": "IN_PLAY",
+    "537328": "FINISHED",
     "537329": "TIMED",
     "537330": "TIMED",
     "537331": "TIMED",
