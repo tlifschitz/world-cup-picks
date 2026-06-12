@@ -345,6 +345,17 @@
     only emerged once the field was modelled at realistic scale.
   </p>
 
+  <p>
+    One last turn of the screw: the dial above is the optimum of the
+    <em>research grid</em>, averaged over many simulated tournaments. The ticket
+    actually submitted went through a final per-ticket Monte&nbsp;Carlo grid
+    search — score this exact set of 72 picks against the simulated field, dial
+    by dial — which settled on something gentler still:
+    \(\alpha = 0.00,\ \gamma = 0.20\). In plain terms: no explicit
+    field-avoidance, just a light thumb on the scale toward goal-heavier
+    scorelines. The picks you see on this site are that ticket.
+  </p>
+
   <h2>6. A worked example</h2>
 
   <p>
@@ -439,9 +450,9 @@
     &nbsp;<strong style="color:#e8eef2;">2-0</strong> — the model's modal scoreline (20.5%) and the
     points-maximizing pick under <em>both</em> schemes. &nbsp;&nbsp;
     <span style="display:inline-block; width:.8rem; height:.8rem; outline:2px dashed #7aa7ff; outline-offset:-2px; background:#1c9ba0; vertical-align:middle;"></span>
-    &nbsp;<strong style="color:#e8eef2;">3-0</strong> — where the leverage picker
-    (\(\alpha=0.25,\ \gamma=0.40\)) moves the MP ticket: nearly as likely (17.7%),
-    but the field crowds onto it less.
+    &nbsp;<strong style="color:#e8eef2;">3-0</strong> — where a stronger leverage
+    dial (\(\alpha=0.25,\ \gamma=0.40\), the research-grid optimum) would move
+    the MP ticket: nearly as likely (17.7%), but the field crowds onto it less.
   </p>
 
   <p>
@@ -449,14 +460,16 @@
     dominated by Mexico-wins-to-nil scorelines (the entire left column), because
     South Africa's expected goals are tiny. Points-maximization lands on 2-0, the
     single most probable line — and so does the friends'-pool pick, since with a
-    favourite this heavy the partial-credit scheme agrees. The leverage picker,
-    aimed at the million-entrant ranking, instead nudges to 3-0: almost as
-    probable, goal-heavier, and held by ~12% of the simulated field versus the
-    crowd piling onto 1-0 and 2-0. (As it happened, the match finished
-    <strong>2-0</strong> — the chalk pick cashed this time. Over a whole
-    tournament, the leverage tilt is a bet that being slightly off the crowd pays
-    more often than it costs. One match never settles that bet; the Monte Carlo
-    over thousands of tournaments is what does.)
+    favourite this heavy the partial-credit scheme agrees. A leverage picker at
+    the research-grid dial, aimed at the million-entrant ranking, would instead
+    nudge to 3-0: almost as probable, goal-heavier, and held by ~12% of the
+    simulated field versus the crowd piling onto 1-0 and 2-0. The deployed
+    ticket's gentler dial (\(\alpha=0,\ \gamma=0.20\)) judged the 2.8-percentage-point
+    probability gap too expensive and stayed on 2-0. (As it happened, the match
+    finished <strong>2-0</strong> — the gentle dial cashed the exact. Over a
+    whole tournament, any leverage tilt is a bet that being slightly off the
+    crowd pays more often than it costs. One match never settles that bet; the
+    Monte Carlo over thousands of tournaments is what does.)
   </p>
 
   <h2>7. Two rulebooks, two tickets</h2>
@@ -473,14 +486,17 @@
   </p>
 
   <p>
-    How much do the two answers differ? Holding the picker fixed at plain
+    How much do the two answers differ? It depends almost entirely on the
+    leverage dial, not the scoring scheme: holding the picker fixed at plain
     points-maximization, the 6/3 and 10/7/5/2 schemes alone disagree on only a
     handful of matches — the partial-credit structure rarely overturns the modal
-    line. But the <em>deployed</em> tickets differ far more: the MP leverage
-    ticket and the EMP points-max ticket part ways in roughly
-    <strong>41 of the 72</strong> group matches. Almost all of that gap is the
-    leverage tilt at work, not the scoring scheme — a concrete measure of how much
-    "play to win the pool" pulls you away from "play to be accurate."
+    line. At the research-grid dial (\(\alpha=0.25,\ \gamma=0.40\)) the MP
+    ticket parts ways with the EMP ticket in roughly <strong>41 of 72</strong>
+    group matches. The deployed MP ticket's gentler dial
+    (\(\alpha=0,\ \gamma=0.20\)) lands much closer to points-optimal, differing
+    from the EMP ticket in just <strong>4 of 72</strong> — a concrete measure of
+    how the aggressiveness knob, and it alone, trades accuracy for pool
+    leverage.
   </p>
 
   <h2>8. What this model does not know</h2>
@@ -533,7 +549,7 @@
 </main>
 <footer class="site-footer">
   <p>Fixtures &amp; results from <a href="https://www.football-data.org" rel="noopener">football-data.org</a>
-     &middot; Built from commit 25b77fcc4410 &middot; Last content update 2026-06-12 04:15 UTC</p>
+     &middot; Built from commit 29050fec133d &middot; Last content update 2026-06-12 04:19 UTC</p>
   <p><a href="https://github.com/tlifschitz/tobis-wc2026-picks" rel="noopener">Source on GitHub</a></p>
 </footer>
 
