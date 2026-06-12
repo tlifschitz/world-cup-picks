@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Theory — TOBI&#x27;S picks</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+</head>
+<body>
+<header class="hero">
+  <div class="hero-inner">
+    <div class="brand">
+      <span class="kicker">World Cup 2026</span>
+      <h1>TOBI'S <em>picks</em></h1>
+      <p class="sub">Model-driven predictions, revealed at kickoff.</p>
+    </div>
+    <nav class="tabs">
+      <a href="index.html">Picks</a>
+      <a href="theory.html" class="active">Theory</a>
+    </nav>
+  </div>
+</header>
+<main>
+
+    <article class="theory-wrap">
+      <section class="theory">
+
+  <h1>How to win a prediction pool you can't out-forecast</h1>
+
+  <p class="lede">
+    This project picks scorelines for the 2026 World Cup. But its real subject
+    is a subtler question than "who will win?" — it is <em>how do you finish in
+    the money in a pool of a million strangers?</em> Those are not the same
+    problem, and most of the interesting engineering lives in the gap between
+    them. What follows is the theory, honestly: the parts that are textbook, the
+    parts that are calibrated guesses, and the parts we still don't know.
+  </p>
+
+  <h2>1. The problem is not forecasting</h2>
+
+  <p>
+    A prediction pool — a <em>prode</em>, in Argentine Spanish — pays you for
+    guessing match results. It is tempting to treat it as a forecasting contest:
+    build the best model, maximize your expected points, done. That instinct is
+    wrong, and seeing why is the whole point of this page.
+  </p>
+
+  <p>
+    The prizes don't go to the most accurate ticket. They go to the few tickets
+    that finish at the top of a leaderboard. Concretely, this optimizer targets
+    two very different pools that score the same 72 group-stage matches:
+  </p>
+
+  <ul>
+    <li>
+      <strong>MP</strong> — the MercadoPago "Fixture 2026" public ranking,
+      roughly <strong>one million entrants</strong>, with cash prizes only for
+      the <strong>top three</strong>. Scoring: <code>+6</code> for an exact
+      scoreline, <code>+3</code> for the correct outcome (win / draw / loss),
+      <code>0</code> otherwise. This is winner-take-all.
+    </li>
+    <li>
+      <strong>EMP</strong> ("ELMASPRODE") — a small friends' pool that simply
+      pays by points. Its scoring gives partial credit:
+      <strong>10</strong> exact / <strong>7</strong> correct outcome plus one
+      team's goal count right / <strong>5</strong> correct outcome only /
+      <strong>2</strong> one team's goals right with the outcome wrong /
+      <strong>0</strong> otherwise.
+    </li>
+  </ul>
+
+  <p>
+    Here is the crux. In the friends' pool, your prize <em>is</em> your point
+    total — so maximizing expected points is exactly the right objective. But in
+    the million-entrant pool, your prize is a step function: it is enormous if
+    you finish top three and zero otherwise. The quantity you actually want to
+    maximize is
+  </p>
+
+  $$ \text{objective} \;=\; \mathbb{P}\big(\text{your ticket finishes top 3}\big), $$
+
+  <p>
+    which is <em>not</em> the same as \( \mathbb{E}[\text{points}] \). If you
+    pick the same "obvious" scoreline as 600,000 other people and it hits, you
+    are tied with 600,000 people and the tiebreakers decide — you have won
+    nothing. To finish top three out of a million, you need your good outcomes to
+    be outcomes that <em>few others share</em>. Finance has a name for this: you
+    want right-tail exposure, even at the cost of a slightly lower mean. So the
+    same match, scored under two different rulebooks, can demand two different
+    picks. The optimizer computes both columns on every run.
+  </p>
+
+  <h2>2. Modelling a single match</h2>
+
+  <p>
+    Everything downstream rests on one object: for each match, a probability for
+    every possible scoreline — a full \(6{\times}6\)-ish grid of
+    \(\mathbb{P}(\text{A scores } i,\ \text{B scores } j)\). We build it in three
+    steps.
+  </p>
+
+  <h3>2.1 From Elo to expected goals</h3>
+
+  <p>
+    We start from each team's <strong>Elo rating</strong> (sourced nightly from
+    eloratings.net). The Elo difference between two teams maps to an expected
+    score \(W_e\) — the share of a point team A would average against B, counting
+    a draw as half:
+  </p>
+
+  $$ W_e \;=\; \frac{1}{1 + 10^{-\,\Delta r / 400}}, \qquad
+     \Delta r = r_A - r_B \;(+\,100 \text{ if A is a host}). $$
+
+  <p>
+    The three host nations (Mexico, Canada, USA) get a <code>+100</code> Elo
+    bump in their own matches — a standard home-advantage proxy that makes the
+    model's win probabilities line up with eloratings.net's published numbers.
+    \(W_e\) is a single number, though, and we need two goal rates. We assume an
+    expected <em>total</em> number of goals for the match and then solve for the
+    split \((\lambda_A, \lambda_B)\) — the expected goals of each side — such
+    that a Poisson model with those rates reproduces \(W_e\) exactly. (The solve
+    is a one-dimensional bisection on the goal supremacy \(\lambda_A-\lambda_B\);
+    nothing exotic.)
+  </p>
+
+  <h3>2.2 Poisson, and where it goes wrong</h3>
+
+  <p>
+    Goals in football are, to a first approximation, two independent Poisson
+    processes. The probability a team with rate \(\lambda\) scores exactly
+    \(k\) goals is
+  </p>
+
+  $$ \mathbb{P}(k \mid \lambda) \;=\; e^{-\lambda}\,\frac{\lambda^{\,k}}{k!}, $$
+
+  <p>
+    and the naive scoreline probability is the product
+    \(\mathbb{P}(i\mid\lambda_A)\,\mathbb{P}(j\mid\lambda_B)\). This is clean and
+    almost right. Its known failure is the low-scoring corner of the grid: real
+    football has more 0-0, 1-1 and 1-0 results than two independent Poissons
+    predict, because the two scores are not truly independent (a team protecting
+    a lead stops attacking; a tight game stays tight).
+  </p>
+
+  <h3>2.3 The Dixon–Coles correction</h3>
+
+  <p>
+    Dixon and Coles (1997) patch exactly those four cells with a multiplicative
+    factor \(\tau\) governed by a single correlation parameter \(\rho\):
+  </p>
+
+  $$
+  \tau_{\rho}(i,j) =
+  \begin{cases}
+    1 - \lambda_A \lambda_B\, \rho & (i,j)=(0,0)\\[2pt]
+    1 + \lambda_A\, \rho & (i,j)=(0,1)\\[2pt]
+    1 + \lambda_B\, \rho & (i,j)=(1,0)\\[2pt]
+    1 - \rho & (i,j)=(1,1)\\[2pt]
+    1 & \text{otherwise}
+  \end{cases}
+  $$
+
+  <p>
+    The corrected, renormalized grid
+    \(\mathbb{P}(i,j) \propto \tau_\rho(i,j)\,\mathbb{P}(i\mid\lambda_A)\,\mathbb{P}(j\mid\lambda_B)\)
+    is the match model. So far, so textbook. The interesting part is the
+    calibration.
+  </p>
+
+  <h3>2.4 A finding: the sign of <span class="math-inline">\(\rho\)</span> flips at the World Cup</h3>
+
+  <p>
+    In the club-football literature, \(\rho\) is reliably <em>negative</em>
+    (around \(-0.13\)): pure Poisson <em>under</em>-predicts draws like 1-1, and a
+    negative \(\rho\) pushes mass toward them. We started there. Then we fit
+    \((\text{total goals},\,\rho)\) by maximum likelihood against the actual
+    scorelines of <strong>192 group-stage matches</strong> from the 2010, 2014,
+    2018 and 2022 World Cups — and the data asked for the opposite sign.
+  </p>
+
+  <p>
+    The best fit is an expected total of <strong>2.80</strong> goals and
+    <strong>\(\rho = +0.05\)</strong> — small, but positive. The residuals say
+    why: at the World Cup the model needs to move probability mass <em>out of</em>
+    1-1 and <em>into</em> 1-0, the reverse of the club-football pattern. The
+    plausible story is structural: neutral venues and tactical caution in a
+    one-month knockout tournament produce more genuine 1-0 grinds than the 1-1
+    draws that pad a 38-game domestic league. We trusted the 192 matches over the
+    textbook constant. (Two honest caveats live here: with \(\rho\) this close to
+    zero, turning Dixon–Coles off entirely costs almost nothing; and the best-fit
+    total swings from 2.70 to 3.20 <em>between</em> tournaments — 2.80 is a robust
+    prior, not a law. The residual under-prediction of 1-0 and 2-1 never fully
+    goes away — it's a structural limit of forcing Poisson onto Elo, not
+    something more parameter-tuning fixes.)
+  </p>
+
+  <h2>3. Borrowing the crowd's wisdom: betting markets</h2>
+
+  <p>
+    Where a liquid betting market exists for a match (Polymarket near kickoff, or
+    a bookmaker's odds pasted in by hand), it usually knows more than our Elo
+    model does, and we blend it in. But raw odds can't be read as probabilities
+    directly, for a reason worth spelling out.
+  </p>
+
+  <p>
+    Bookmakers price the three outcomes so that the implied probabilities sum to
+    <em>more</em> than 1 — typically 1.05 to 1.10. That excess is the
+    <strong>vig</strong> (overround): the house's margin. To recover real
+    probabilities you have to strip it out. The obvious method — divide each
+    price by the sum so they total 1 — is subtly wrong. It spreads the margin
+    proportionally, which systematically <em>over</em>-states longshots. This is
+    the well-documented <em>favourite–longshot bias</em>: the public overbets
+    longshots, so books pad longshot prices more than favourite prices.
+  </p>
+
+  <p>
+    We instead use <strong>Shin's (1993) method</strong>, which models the
+    overround as arising from a fraction \(z\) of insider traders and solves for
+    the true probabilities \(q_i\) under the bookmaker's break-even condition:
+  </p>
+
+  $$ q_i \;=\; \frac{\sqrt{\,z^{2} + 4(1-z)\,\pi_i^{2}/B\,}\;-\;z}{2(1-z)},
+     \qquad B = \textstyle\sum_i \pi_i, $$
+
+  <p>
+    where \(\pi_i\) are the offered (vig-inclusive) prices and \(z\) is found by
+    bisection so the \(q_i\) sum to 1. The direction is the important bit: Shin
+    <em>raises</em> the favourite's probability (by 1–3 points) and
+    <em>lowers</em> longshots, correcting the bias rather than baking it in. When
+    the offered prices already sum to 1, Shin is a no-op and reduces to plain
+    normalization. The de-vigged market \(W_e\) is then blended with the Elo
+    \(W_e\) at a chosen weight, and the whole scoreline grid is rebuilt from the
+    blend.
+  </p>
+
+  <h2>4. Modelling the opponents you can't see</h2>
+
+  <p>
+    Recall the real objective: finish top three against a million other tickets.
+    You cannot optimize against opponents you don't model — so we have to write
+    down what the <em>field</em> will pick, without any data on the field. We do
+    it with a mixture of behavioural archetypes, each contributing a per-match
+    scoreline distribution:
+  </p>
+
+  <ul>
+    <li>
+      <strong>Sharps</strong> (~15%): pick close to the true model, just slightly
+      flatter — they roughly know what they're doing.
+    </li>
+    <li>
+      <strong>Casuals</strong> (~65%): take the favourite to win with a stock
+      low-scoring line. Their mass piles onto a handful of scorelines —
+      {1-0: 50%, 2-0: 25%, 2-1: 13%, 3-0: 7%, 3-1: 5%}. This concentration is the
+      single most important fact about the field.
+    </li>
+    <li>
+      <strong>Patriots</strong> (~20%, only when the home country — Argentina by
+      default — plays): pick narrative scorelines (a heroic 2-1, a 3-0) regardless
+      of the odds.
+    </li>
+    <li>
+      <strong>Anti-rivals</strong> (~10% each, when Brazil or England play): a
+      slice of the crowd that systematically bets <em>against</em> a rival,
+      shrinking that team's win probability and shifting it to the draw and the
+      opponent. (These are real social biases in the target audience, not
+      decoration.)
+    </li>
+  </ul>
+
+  <p>
+    Two subtleties make this model actually useful rather than a toy. First, the
+    field is sampled <strong>player-level</strong>: each simulated entrant draws
+    one persistent archetype and plays it across all 72 matches. A casual is a
+    casual in every match — which means in a "chalk" tournament (favourites win,
+    low scores) <em>all</em> the casuals cash <em>together</em>, fattening the
+    right tail of the field's score distribution. That tail is precisely what
+    decides the top three, and modelling it independently per match (the naive
+    way) understates it by a wide margin. Second, beyond the parametric mixture
+    there is an <strong>exact-field simulation</strong> that instantiates the
+    real ~1M tickets and counts, universe by universe, how many beat ours — no
+    extrapolation, just a very long overnight run.
+  </p>
+
+  <h2>5. The picker: why maximizing points loses the pool</h2>
+
+  <p>
+    Now we can state the core tension precisely. The points-maximizing pick — for
+    a clear favourite, almost always the modal low score like 1-0 or 2-0 — is
+    exactly the pick the casual majority also makes. Maximize expected points and
+    you maximize your <em>overlap</em> with the crowd. When your pick hits, so
+    does theirs, and you are tied with a third of the pool.
+  </p>
+
+  <p>
+    The fix is <strong>leverage</strong>: deliberately picking where the field is
+    over-concentrated, buying scoreline variance while keeping the safer outcome
+    floor. The picker first locks the modal <em>outcome</em> (preserving the
+    3-point floor for getting win/draw/loss right), then, among the scorelines
+    consistent with that outcome, ranks each candidate \(s\) by a leverage utility:
+  </p>
+
+  $$ U(s) \;=\; \log \mathbb{P}(s \mid o^{*})
+     \;-\; \alpha \, \log \mathbb{P}_{\text{field}}(s \mid o^{*})
+     \;+\; \gamma \,\frac{i+j}{6}. $$
+
+  <p>
+    The first term wants the most likely scoreline. The middle term — with
+    <strong>aggressiveness</strong> \(\alpha\) — penalizes scorelines the field
+    crowds onto; it is the textbook winner-take-all contrarian term. The last
+    term — with <strong>goleador bias</strong> \(\gamma\) — tilts toward
+    goal-heavy lines, which both decorrelate from the 1-0/1-1 crowd and win two
+    of the pool's tiebreakers (most exact scores, and most goals within exact
+    scores). Set \(\alpha=\gamma=0\) and you recover plain points-maximization
+    exactly.
+  </p>
+
+  <p>
+    How aggressive should the dials be? That is an empirical question, answered by
+    Monte Carlo. We simulate thousands of whole-tournament "universes" (drawing a
+    scoreline for every match from its grid), sample a realistic field for each,
+    and score our candidate ticket against the field in <em>every</em> universe —
+    the joint sampling matters, because our good days and the field's good days
+    are correlated through the same scoreline draws. Then we extrapolate the
+    rank-in-1000 statistic out to the real million-entrant tail (a Poisson
+    approximation to a binomial), and finally confirm it with the exact-field
+    simulation.
+  </p>
+
+  <p>
+    The headline result: a mild dial — \(\boldsymbol{\alpha = 0.25}\),
+    \(\boldsymbol{\gamma = 0.40}\) — beats pure points-maximization by roughly
+    <strong>5×</strong> on \(\mathbb{P}(\text{top 3})\) against friends-sized and
+    larger fields. The intuition that "more contrarian is better" has a hard
+    ceiling, though: crank \(\alpha \ge 0.5\) and \(\mathbb{P}(\text{top 3})\)
+    <em>collapses</em> — you start picking scorelines so improbable that they
+    almost never come in, and a rare exact can't crown you if it doesn't happen.
+    The sweet spot is "almost points-optimal, with a deliberate splash of
+    variance." That tuning result — that strong contrarianism is a trap and the
+    optimum sits just off EV-max — was the project's least obvious finding, and it
+    only emerged once the field was modelled at realistic scale.
+  </p>
+
+  <h2>6. A worked example</h2>
+
+  <p>
+    Here is the model's full scoreline grid for the tournament's opening match,
+    <strong>Mexico vs South Africa</strong> (played 11 June 2026). Mexico, with
+    the host's <code>+100</code> Elo bump, comes in at an
+    <strong>88.6%</strong> win probability — \(\lambda_{\text{MEX}} \approx 2.59\)
+    expected goals to South Africa's \(\approx 0.21\). Rows are Mexico's goals,
+    columns South Africa's; each cell is \(\mathbb{P}(\text{that exact score})\),
+    shaded by intensity.
+  </p>
+
+  <table class="heatmap" style="border-collapse:collapse; margin:1.25rem 0; font-variant-numeric:tabular-nums; font-size:0.85rem; color:#e8eef2;">
+    <caption style="caption-side:top; text-align:left; padding-bottom:.5rem; color:#9fb0bd; font-size:0.8rem;">
+      Mexico (rows) vs South Africa (columns) — Dixon–Coles scoreline probabilities (%)
+    </caption>
+    <thead>
+      <tr>
+        <th style="padding:.35rem .5rem; color:#9fb0bd; font-weight:600;"></th>
+        <th colspan="6" style="padding:.35rem .5rem; color:#9fb0bd; font-weight:600; text-align:center; border-bottom:1px solid #2b3a47;">South Africa goals →</th>
+      </tr>
+      <tr>
+        <th style="padding:.35rem .6rem; color:#9fb0bd; text-align:right;">MEX ↓</th>
+        <th style="padding:.35rem .6rem; color:#9fb0bd; text-align:center;">0</th>
+        <th style="padding:.35rem .6rem; color:#9fb0bd; text-align:center;">1</th>
+        <th style="padding:.35rem .6rem; color:#9fb0bd; text-align:center;">2</th>
+        <th style="padding:.35rem .6rem; color:#9fb0bd; text-align:center;">3</th>
+        <th style="padding:.35rem .6rem; color:#9fb0bd; text-align:center;">4</th>
+        <th style="padding:.35rem .6rem; color:#9fb0bd; text-align:center;">5</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th style="padding:.35rem .6rem; color:#9fb0bd; text-align:right;">0</th>
+        <td style="padding:.45rem .6rem; text-align:center; background:#0d3b3f;">5.9</td>
+        <td style="padding:.45rem .6rem; text-align:center; background:#0a2127;">1.4</td>
+        <td style="padding:.45rem .6rem; text-align:center; background:#08161b;">0.1</td>
+        <td style="padding:.45rem .6rem; text-align:center; background:#071318;">0.0</td>
+        <td style="padding:.45rem .6rem; text-align:center; background:#071318;">0.0</td>
+        <td style="padding:.45rem .6rem; text-align:center; background:#071318;">0.0</td>
+      </tr>
+      <tr>
+        <th style="padding:.35rem .6rem; color:#9fb0bd; text-align:right;">1</th>
+        <td style="padding:.45rem .6rem; text-align:center; background:#178a8f; color:#04181a; font-weight:600;">15.9</td>
+        <td style="padding:.45rem .6rem; text-align:center; background:#0c2e34;">3.1</td>
+        <td style="padding:.45rem .6rem; text-align:center; background:#091a1f;">0.3</td>
+        <td style="padding:.45rem .6rem; text-align:center; background:#071418;">0.0</td>
+        <td style="padding:.45rem .6rem; text-align:center; background:#071318;">0.0</td>
+        <td style="padding:.45rem .6rem; text-align:center; background:#071318;">0.0</td>
+      </tr>
+      <tr>
+        <th style="padding:.35rem .6rem; color:#9fb0bd; text-align:right;">2</th>
+        <td style="padding:.45rem .6rem; text-align:center; background:#2fd9c9; color:#04181a; font-weight:700; outline:2px solid #ffd166; outline-offset:-2px;">20.5</td>
+        <td style="padding:.45rem .6rem; text-align:center; background:#0e353b;">4.2</td>
+        <td style="padding:.45rem .6rem; text-align:center; background:#091b20;">0.4</td>
+        <td style="padding:.45rem .6rem; text-align:center; background:#071418;">0.0</td>
+        <td style="padding:.45rem .6rem; text-align:center; background:#071318;">0.0</td>
+        <td style="padding:.45rem .6rem; text-align:center; background:#071318;">0.0</td>
+      </tr>
+      <tr>
+        <th style="padding:.35rem .6rem; color:#9fb0bd; text-align:right;">3</th>
+        <td style="padding:.45rem .6rem; text-align:center; background:#1c9ba0; color:#04181a; font-weight:600; outline:2px dashed #7aa7ff; outline-offset:-2px;">17.7</td>
+        <td style="padding:.45rem .6rem; text-align:center; background:#0d3238;">3.7</td>
+        <td style="padding:.45rem .6rem; text-align:center; background:#091a1f;">0.4</td>
+        <td style="padding:.45rem .6rem; text-align:center; background:#071418;">0.0</td>
+        <td style="padding:.45rem .6rem; text-align:center; background:#071318;">0.0</td>
+        <td style="padding:.45rem .6rem; text-align:center; background:#071318;">0.0</td>
+      </tr>
+      <tr>
+        <th style="padding:.35rem .6rem; color:#9fb0bd; text-align:right;">4</th>
+        <td style="padding:.45rem .6rem; text-align:center; background:#11696e;">11.5</td>
+        <td style="padding:.45rem .6rem; text-align:center; background:#0b2a30;">2.4</td>
+        <td style="padding:.45rem .6rem; text-align:center; background:#08181d;">0.2</td>
+        <td style="padding:.45rem .6rem; text-align:center; background:#071318;">0.0</td>
+        <td style="padding:.45rem .6rem; text-align:center; background:#071318;">0.0</td>
+        <td style="padding:.45rem .6rem; text-align:center; background:#071318;">0.0</td>
+      </tr>
+      <tr>
+        <th style="padding:.35rem .6rem; color:#9fb0bd; text-align:right;">5</th>
+        <td style="padding:.45rem .6rem; text-align:center; background:#0d3b3f;">6.0</td>
+        <td style="padding:.45rem .6rem; text-align:center; background:#0a2025;">1.2</td>
+        <td style="padding:.45rem .6rem; text-align:center; background:#08161b;">0.1</td>
+        <td style="padding:.45rem .6rem; text-align:center; background:#071318;">0.0</td>
+        <td style="padding:.45rem .6rem; text-align:center; background:#071318;">0.0</td>
+        <td style="padding:.45rem .6rem; text-align:center; background:#071318;">0.0</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p style="font-size:0.85rem; color:#9fb0bd;">
+    <span style="display:inline-block; width:.8rem; height:.8rem; outline:2px solid #ffd166; outline-offset:-2px; background:#2fd9c9; vertical-align:middle;"></span>
+    &nbsp;<strong style="color:#e8eef2;">2-0</strong> — the model's modal scoreline (20.5%) and the
+    points-maximizing pick under <em>both</em> schemes. &nbsp;&nbsp;
+    <span style="display:inline-block; width:.8rem; height:.8rem; outline:2px dashed #7aa7ff; outline-offset:-2px; background:#1c9ba0; vertical-align:middle;"></span>
+    &nbsp;<strong style="color:#e8eef2;">3-0</strong> — where the leverage picker
+    (\(\alpha=0.25,\ \gamma=0.40\)) moves the MP ticket: nearly as likely (17.7%),
+    but the field crowds onto it less.
+  </p>
+
+  <p>
+    This match is a clean illustration of every piece at once. The grid is
+    dominated by Mexico-wins-to-nil scorelines (the entire left column), because
+    South Africa's expected goals are tiny. Points-maximization lands on 2-0, the
+    single most probable line — and so does the friends'-pool pick, since with a
+    favourite this heavy the partial-credit scheme agrees. The leverage picker,
+    aimed at the million-entrant ranking, instead nudges to 3-0: almost as
+    probable, goal-heavier, and held by ~12% of the simulated field versus the
+    crowd piling onto 1-0 and 2-0. (As it happened, the match finished
+    <strong>2-0</strong> — the chalk pick cashed this time. Over a whole
+    tournament, the leverage tilt is a bet that being slightly off the crowd pays
+    more often than it costs. One match never settles that bet; the Monte Carlo
+    over thousands of tournaments is what does.)
+  </p>
+
+  <h2>7. Two rulebooks, two tickets</h2>
+
+  <p>
+    Because the two pools score differently, the optimizer fills two columns on
+    every match and marks where they diverge. The friends' pool (EMP) is pure
+    points-maximization end to end — in a small pool paid by points, maximum
+    expected points <em>is</em> the entire game, and any contrarian shift only
+    throws points away. The public ranking (MP) gets the leverage treatment
+    plus a knockout adjustment (in elimination matches the scoreline grid is
+    convolved with a 30-minute extra-time grid for games level at 90'; penalty
+    shootouts don't move the recorded marker).
+  </p>
+
+  <p>
+    How much do the two answers differ? Holding the picker fixed at plain
+    points-maximization, the 6/3 and 10/7/5/2 schemes alone disagree on only a
+    handful of matches — the partial-credit structure rarely overturns the modal
+    line. But the <em>deployed</em> tickets differ far more: the MP leverage
+    ticket and the EMP points-max ticket part ways in roughly
+    <strong>41 of the 72</strong> group matches. Almost all of that gap is the
+    leverage tilt at work, not the scoring scheme — a concrete measure of how much
+    "play to win the pool" pulls you away from "play to be accurate."
+  </p>
+
+  <h2>8. What this model does not know</h2>
+
+  <p>
+    Honesty is part of the design. The hard limitations:
+  </p>
+
+  <ul>
+    <li>
+      <strong>A tournament is one sample.</strong> Every \(\mathbb{P}(\text{top
+      3})\) here is an expectation over simulated universes. The real 2026 World
+      Cup is a single draw from that distribution. A well-chosen ticket can still
+      finish nowhere; that is variance, not a bug, and no model removes it.
+    </li>
+    <li>
+      <strong>The calibration is thin.</strong> 192 matches across four
+      tournaments is a small sample, the per-edition goal regime swings widely
+      (2.70 to 3.20), and the residual under-prediction of 1-0 and 2-1 is a
+      structural limit of the Elo→Poisson mapping. The plan is to recalibrate the
+      goal total once 2026's own first round provides data.
+    </li>
+    <li>
+      <strong>The field model is a hypothesis.</strong> Sharps, casuals, patriots
+      and anti-rivals — with those exact weights — are an educated guess about a
+      crowd we have no data on. The whole leverage conclusion rides on the crowd
+      being as concentrated as we assume. We sweep the weights for robustness, but
+      we cannot validate them against ground truth until the leaderboard is
+      visible.
+    </li>
+    <li>
+      <strong>The knockout stage is unfinished.</strong> The extra-time
+      convolution is in place, but the model's goal and correlation parameters are
+      still the group-stage values; knockout football is a different, tighter
+      regime that deserves its own calibration. The numbers here are most
+      trustworthy for the 72 group matches.
+    </li>
+  </ul>
+
+  <p class="closing">
+    None of these caveats undo the central idea, which is the part worth keeping:
+    in a pool you cannot out-forecast, the winning move is not to predict better
+    than everyone — it is to be wrong in a different direction than the crowd, and
+    to size that bet exactly.
+  </p>
+
+</section>
+
+    </article>
+</main>
+<footer class="site-footer">
+  <p>Fixtures &amp; results from <a href="https://www.football-data.org" rel="noopener">football-data.org</a>
+     &middot; Built from commit local &middot; Last content update 2026-06-12 04:09 UTC</p>
+  <p><a href="https://github.com/tlifschitz/tobis-wc2026-picks" rel="noopener">Source on GitHub</a></p>
+</footer>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  if (window.renderMathInElement) {
+    renderMathInElement(document.body, {
+      delimiters: [
+        { left: "$$", right: "$$", display: true },
+        { left: "\\(", right: "\\)", display: false }
+      ],
+      throwOnError: false
+    });
+  }
+});
+</script>
+
+</body>
+</html>
