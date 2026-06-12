@@ -1,6 +1,6 @@
 {
   "emp_total": 15,
-  "inputs_hash": "7d5b3ebbbf9d",
+  "inputs_hash": "4b937bfd06d7",
   "mp_total": 9,
   "revealed": [
     537327,
@@ -89,5 +89,9 @@
     "537412": "TIMED",
     "537413": "TIMED",
     "537414": "TIMED"
-  }
+  },
+  "today": [
+    537333,
+    537345
+  ]
 }

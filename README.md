@@ -1,4 +1,4 @@
-# TOBI'S picks
+# Tobi's Picks
 
 **→ [tlifschitz.github.io/tobis-wc2026-picks](https://tlifschitz.github.io/tobis-wc2026-picks/)**
 
