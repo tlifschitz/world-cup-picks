@@ -130,6 +130,31 @@ details.sec>summary:hover .section-title{color:var(--accent)}
   .hero-inner{align-items:center}
 }
 
+/* Campo — field histogram */
+.campo .explainer-p{color:var(--muted);max-width:62ch;margin:0 0 14px}
+.lg-model{color:var(--accent);font-weight:600}
+.lg-obs{color:var(--winA);font-weight:600}
+.lg-me{color:var(--gold);font-weight:600}
+.date-tabs{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 14px}
+.date-btn{background:var(--panel2);color:var(--muted);border:1px solid var(--line);
+  border-radius:8px;padding:6px 12px;font:inherit;font-size:13px;cursor:pointer}
+.date-btn.active{background:var(--accent);color:#0a0f0c;border-color:var(--accent);font-weight:600}
+.campo-chart{display:none}
+.campo-chart.active{display:block}
+.chart-meta{color:var(--muted);font-size:13px;margin:0 0 8px}
+svg.hist{width:100%;height:auto;background:var(--panel);border:1px solid var(--line);
+  border-radius:12px;padding:6px}
+svg.hist .grid{stroke:var(--line);stroke-width:1}
+svg.hist .ax{fill:var(--muted);font-size:12px}
+svg.hist .ax-title{fill:var(--dim);font-size:12px}
+svg.hist .model-area{fill:var(--accent);opacity:.13}
+svg.hist .model-line{fill:none;stroke:var(--accent);stroke-width:2}
+svg.hist .obs-line{fill:none;stroke:var(--winA);stroke-width:2;stroke-dasharray:5 4}
+svg.hist .obs-dot{fill:var(--winA)}
+svg.hist .me{stroke:var(--gold);stroke-width:2}
+svg.hist .me-lab{fill:var(--gold);font-size:12px;font-weight:600}
+.muted.small{color:var(--muted);font-size:12px}
+
 
 /* Flags */
 .flag{display:inline-block;width:1.32em;height:.99em;vertical-align:-.12em;background-size:cover;background-position:50%;border-radius:2px;box-shadow:0 0 0 1px rgba(0,0,0,.25) inset;flex:none}

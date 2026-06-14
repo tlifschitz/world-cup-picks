@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Campo — Tobi&#x27;s Picks</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="hero">
+  <div class="hero-inner">
+    <div class="brand">
+      <span class="kicker">World Cup 2026</span>
+      <h1>Tobi's <em>Picks</em></h1>
+      <p class="sub">Model-driven predictions, revealed at kickoff.</p>
+    </div>
+    <nav class="tabs">
+      <a href="index.html">Picks</a>
+      <a href="campo.html" class="active">Campo</a>
+      <a href="theory.html">Theory</a>
+    </nav>
+  </div>
+</header>
+<main>
+
+    <section class="sec campo">
+      <h2 class="section-title">The field, day by day</h2>
+      <p class="explainer-p">How many players sit at each cumulative-points level.
+      The <span class="lg-model">filled curve</span> is what the field model predicts;
+      the <span class="lg-obs">dotted line</span> is what friends actually reported
+      (dots = sampled, line between them = interpolated). The
+      <span class="lg-me">gold line</span> is where I stand. When the two curves
+      diverge, the field model is being recalibrated against reality.</p>
+      <div class="date-tabs"><button class="date-btn" data-target="campo-0">2026-06-11</button><button class="date-btn active" data-target="campo-1">2026-06-12</button></div>
+      <div class="campo-chart" id="campo-0"><p class="chart-meta">2 matches played · field ≈ 5.0M players</p><svg viewBox="0 0 820 340" class="hist" role="img"
+      aria-label="Field score distribution for 2026-06-11">
+      <line class="grid" x1="58" y1="298.0" x2="804" y2="298.0"/><text class="ax" x="50" y="302.0" text-anchor="end">0</text><line class="grid" x1="58" y1="228.0" x2="804" y2="228.0"/><text class="ax" x="50" y="232.0" text-anchor="end">560k</text><line class="grid" x1="58" y1="158.0" x2="804" y2="158.0"/><text class="ax" x="50" y="162.0" text-anchor="end">1.1M</text><line class="grid" x1="58" y1="88.0" x2="804" y2="88.0"/><text class="ax" x="50" y="92.0" text-anchor="end">1.7M</text><line class="grid" x1="58" y1="18.0" x2="804" y2="18.0"/><text class="ax" x="50" y="22.0" text-anchor="end">2.2M</text><line class="grid" x1="58.0" y1="18" x2="58.0" y2="298"/><text class="ax" x="58.0" y="314" text-anchor="middle">0</text><line class="grid" x1="244.5" y1="18" x2="244.5" y2="298"/><text class="ax" x="244.5" y="314" text-anchor="middle">3</text><line class="grid" x1="431.0" y1="18" x2="431.0" y2="298"/><text class="ax" x="431.0" y="314" text-anchor="middle">6</text><line class="grid" x1="617.5" y1="18" x2="617.5" y2="298"/><text class="ax" x="617.5" y="314" text-anchor="middle">9</text><line class="grid" x1="804.0" y1="18" x2="804.0" y2="298"/><text class="ax" x="804.0" y="314" text-anchor="middle">12</text>
+      <polygon class="model-area" points="58,298.0 58.0,259.6 244.5,73.6 431.0,38.7 617.5,204.9 804.0,288.3 804.0,298.0"/>
+      <polyline class="model-line" points="58.0,259.6 244.5,73.6 431.0,38.7 617.5,204.9 804.0,288.3"/>
+      <polyline class="obs-line" points="58.0,188.0 244.5,68.6 431.0,113.2 617.5,230.4 804.0,264.8"/>
+      <circle class="obs-dot" cx="58.0" cy="188.0" r="4"/><circle class="obs-dot" cx="244.5" cy="68.6" r="4"/><circle class="obs-dot" cx="431.0" cy="113.2" r="4"/><circle class="obs-dot" cx="617.5" cy="230.4" r="4"/><line class="me" x1="617.5" y1="18" x2="617.5" y2="298"/><text class="me-lab" x="617.5" y="14" text-anchor="middle">vos · 9</text>
+      <text class="ax-title" x="431" y="334" text-anchor="middle">cumulative MP points</text>
+    </svg></div><div class="campo-chart active" id="campo-1"><p class="chart-meta">4 matches played · field ≈ 5.0M players</p><svg viewBox="0 0 820 340" class="hist" role="img"
+      aria-label="Field score distribution for 2026-06-12">
+      <line class="grid" x1="58" y1="298.0" x2="804" y2="298.0"/><text class="ax" x="50" y="302.0" text-anchor="end">0</text><line class="grid" x1="58" y1="228.0" x2="804" y2="228.0"/><text class="ax" x="50" y="232.0" text-anchor="end">524k</text><line class="grid" x1="58" y1="158.0" x2="804" y2="158.0"/><text class="ax" x="50" y="162.0" text-anchor="end">1.0M</text><line class="grid" x1="58" y1="88.0" x2="804" y2="88.0"/><text class="ax" x="50" y="92.0" text-anchor="end">1.6M</text><line class="grid" x1="58" y1="18.0" x2="804" y2="18.0"/><text class="ax" x="50" y="22.0" text-anchor="end">2.1M</text><line class="grid" x1="58.0" y1="18" x2="58.0" y2="298"/><text class="ax" x="58.0" y="314" text-anchor="middle">0</text><line class="grid" x1="151.2" y1="18" x2="151.2" y2="298"/><text class="ax" x="151.2" y="314" text-anchor="middle">3</text><line class="grid" x1="244.5" y1="18" x2="244.5" y2="298"/><text class="ax" x="244.5" y="314" text-anchor="middle">6</text><line class="grid" x1="337.8" y1="18" x2="337.8" y2="298"/><text class="ax" x="337.8" y="314" text-anchor="middle">9</text><line class="grid" x1="431.0" y1="18" x2="431.0" y2="298"/><text class="ax" x="431.0" y="314" text-anchor="middle">12</text><line class="grid" x1="524.2" y1="18" x2="524.2" y2="298"/><text class="ax" x="524.2" y="314" text-anchor="middle">15</text><line class="grid" x1="617.5" y1="18" x2="617.5" y2="298"/><text class="ax" x="617.5" y="314" text-anchor="middle">18</text><line class="grid" x1="710.8" y1="18" x2="710.8" y2="298"/><text class="ax" x="710.8" y="314" text-anchor="middle">21</text><line class="grid" x1="804.0" y1="18" x2="804.0" y2="298"/><text class="ax" x="804.0" y="314" text-anchor="middle">24</text>
+      <polygon class="model-area" points="58,298.0 58.0,276.6 151.2,141.3 244.5,38.7 337.8,135.9 431.0,244.0 524.2,285.5 617.5,296.0 710.8,297.9 804.0,298.0 804.0,298.0"/>
+      <polyline class="model-line" points="58.0,276.6 151.2,141.3 244.5,38.7 337.8,135.9 431.0,244.0 524.2,285.5 617.5,296.0 710.8,297.9 804.0,298.0"/>
+      <polyline class="obs-line" points="58.0,153.7 151.2,91.2 244.5,113.1 337.8,187.2 431.0,241.0 524.2,280.8 617.5,292.8 710.8,298.0 804.0,298.0"/>
+      <circle class="obs-dot" cx="58.0" cy="153.7" r="4"/><circle class="obs-dot" cx="151.2" cy="91.2" r="4"/><circle class="obs-dot" cx="244.5" cy="113.1" r="4"/><circle class="obs-dot" cx="337.8" cy="187.2" r="4"/><circle class="obs-dot" cx="431.0" cy="241.0" r="4"/><circle class="obs-dot" cx="617.5" cy="292.8" r="4"/><line class="me" x1="431.0" y1="18" x2="431.0" y2="298"/><text class="me-lab" x="431.0" y="14" text-anchor="middle">vos · 12</text>
+      <text class="ax-title" x="431" y="334" text-anchor="middle">cumulative MP points</text>
+    </svg></div>
+      <p class="muted small">Model field params (posterior): modal_kernel=0.45, patriot=0.3, anti=0.2, sharp_α=0.5.</p>
+    </section>
+</main>
+<footer class="site-footer">
+  <p>Fixtures &amp; results from <a href="https://www.football-data.org" rel="noopener">football-data.org</a>
+     &middot; Built from commit 5bc9a2f6cc1d &middot; Last content update 2026-06-14 04:09 UTC</p>
+  <p><a href="https://github.com/tlifschitz/world-cup-picks" rel="noopener">Source on GitHub</a></p>
+</footer>
+
+<script>
+(function () {
+  var btns = document.querySelectorAll('.date-btn');
+  function show(target) {
+    var charts = document.querySelectorAll('.campo-chart');
+    for (var i = 0; i < charts.length; i++)
+      charts[i].classList.toggle('active', charts[i].id === target);
+    for (var j = 0; j < btns.length; j++)
+      btns[j].classList.toggle('active', btns[j].getAttribute('data-target') === target);
+  }
+  for (var k = 0; k < btns.length; k++) {
+    btns[k].addEventListener('click', function () {
+      show(this.getAttribute('data-target'));
+    });
+  }
+})();
+</script>
+
+</body>
+</html>
