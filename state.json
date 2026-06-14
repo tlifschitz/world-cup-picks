@@ -1,6 +1,6 @@
 {
-  "emp_total": 22,
-  "inputs_hash": "32c8b89197de",
+  "emp_total": 24,
+  "inputs_hash": "c9a4727dde9d",
   "mp_total": 12,
   "revealed": [
     537327,
@@ -49,7 +49,7 @@
     "537336": "TIMED",
     "537337": "TIMED",
     "537338": "TIMED",
-    "537339": "IN_PLAY",
+    "537339": "FINISHED",
     "537340": "TIMED",
     "537341": "TIMED",
     "537342": "TIMED",
