@@ -1,7 +1,7 @@
 {
-  "emp_total": 48,
+  "emp_total": 53,
   "inputs_hash": "6532ebec2468",
-  "mp_total": 21,
+  "mp_total": 24,
   "revealed": [
     537327,
     537328,
@@ -87,8 +87,8 @@
       1
     ],
     "537391": [
-      0,
-      0
+      3,
+      1
     ]
   },
   "statuses": {
@@ -140,7 +140,7 @@
     "537372": "TIMED",
     "537373": "TIMED",
     "537374": "TIMED",
-    "537391": "PAUSED",
+    "537391": "FINISHED",
     "537392": "TIMED",
     "537393": "TIMED",
     "537394": "TIMED",
