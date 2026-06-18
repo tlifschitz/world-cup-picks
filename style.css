@@ -135,6 +135,7 @@ details.sec>summary:hover .section-title{color:var(--accent)}
 .lg-model{color:var(--accent);font-weight:600}
 .lg-obs{color:var(--winA);font-weight:600}
 .lg-me{color:var(--gold);font-weight:600}
+.lg-unk{color:var(--muted);font-weight:700}
 .date-tabs{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 14px}
 .date-btn{background:var(--panel2);color:var(--muted);border:1px solid var(--line);
   border-radius:8px;padding:6px 12px;font:inherit;font-size:13px;cursor:pointer}
@@ -153,6 +154,8 @@ svg.hist .obs-line{fill:none;stroke:var(--winA);stroke-width:2;stroke-dasharray:
 svg.hist .obs-dot{fill:var(--winA)}
 svg.hist .me{stroke:var(--gold);stroke-width:2}
 svg.hist .me-lab{fill:var(--gold);font-size:12px;font-weight:600}
+svg.hist .unk{stroke:var(--muted);stroke-width:2}
+svg.hist .unk-lab{fill:var(--muted);font-size:10px}
 .muted.small{color:var(--muted);font-size:12px}
 
 

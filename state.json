@@ -1,7 +1,7 @@
 {
-  "emp_total": 75,
-  "inputs_hash": "6532ebec2468",
-  "mp_total": 36,
+  "emp_total": 80,
+  "inputs_hash": "5975ff7d498c",
+  "mp_total": 39,
   "revealed": [
     537327,
     537328,
@@ -115,7 +115,7 @@
     ],
     "537404": [
       1,
-      2
+      3
     ],
     "537409": [
       4,
@@ -188,7 +188,7 @@
     "537401": "TIMED",
     "537402": "TIMED",
     "537403": "FINISHED",
-    "537404": "IN_PLAY",
+    "537404": "FINISHED",
     "537405": "TIMED",
     "537406": "TIMED",
     "537407": "TIMED",
