@@ -1,7 +1,7 @@
 {
-  "emp_total": 216,
+  "emp_total": 231,
   "inputs_hash": "ece40a9790d7",
-  "mp_total": 108,
+  "mp_total": 117,
   "revealed": [
     537327,
     537328,
@@ -267,8 +267,8 @@
     "537334": "FINISHED",
     "537335": "FINISHED",
     "537336": "FINISHED",
-    "537337": "IN_PLAY",
-    "537338": "IN_PLAY",
+    "537337": "FINISHED",
+    "537338": "FINISHED",
     "537339": "FINISHED",
     "537340": "FINISHED",
     "537341": "FINISHED",
