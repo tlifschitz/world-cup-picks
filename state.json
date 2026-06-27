@@ -1,7 +1,7 @@
 {
-  "emp_total": 297,
+  "emp_total": 314,
   "inputs_hash": "2cc43f334e3f",
-  "mp_total": 147,
+  "mp_total": 156,
   "revealed": [
     537327,
     537328,
@@ -342,7 +342,7 @@
       2
     ],
     "537414": [
-      1,
+      2,
       1
     ]
   },
@@ -417,8 +417,8 @@
     "537410": "FINISHED",
     "537411": "FINISHED",
     "537412": "FINISHED",
-    "537413": "IN_PLAY",
-    "537414": "IN_PLAY"
+    "537413": "FINISHED",
+    "537414": "FINISHED"
   },
   "today": [
     537367,
